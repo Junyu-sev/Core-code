@@ -71,6 +71,7 @@ for (pro_f in pro_f_lst){
   myout_df$p_val_bfi <- p.adjust(myout_df$HR_p_val, method ="bonferroni")
   write.csv(myout_df,paste(cox_path,".csv",sep=""), row.names = F)
 
+#绘制火山图
 myout_df$selectedpro <- ifelse(myout_df$p_val_fdr<0.05, myout_df$Pro_code,NA)
 myout_df$selected <- ifelse(myout_df$p_val_fdr<0.05, "Risk protein","Non-risk protein")
 p1 <- ggplot(myout_df,aes(HR,-log10(p_val_fdr),
