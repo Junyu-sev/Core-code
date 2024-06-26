@@ -85,7 +85,7 @@ def my_imputer(method = 'MEAN'):
         imputer = IterativeImputer(max_iter = 10, random_state = 2020)
     return imputer
 
-
+"""
 def Randomized_cv(selected_params, imp_method, mykf, X, y):
     AUC_cv = []
     for train_idx, test_idx in mykf.split(X, y):
@@ -93,7 +93,7 @@ def Randomized_cv(selected_params, imp_method, mykf, X, y):
         y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
         under = RandomUnderSampler(sampling_strategy = 1, random_state = 2020)
         X_train, y_train = under.fit_resample(X_train, y_train)
-        imputer = my_imputer(method = imp_method)
+       imputer = my_imputer(method = imp_method)
         X_train = imputer.fit_transform(X_train)
         X_test = imputer.transform(X_test)
         AUC_list = []
@@ -108,7 +108,7 @@ def Randomized_cv(selected_params, imp_method, mykf, X, y):
     index, best_auc = max(enumerate(AUC_cv), key = operator.itemgetter(1))
     best_params = selected_params[index]
     return((best_auc, best_params))
-
+"""
 
 def get_full_eval(y_test, pred_prob, cutoff_list):
     evaluations = []
