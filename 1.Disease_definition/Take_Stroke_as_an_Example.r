@@ -1,22 +1,20 @@
+### 需要满足以下要求才会纳入：
+### 1.有蛋白组学数据
+### 2.基线前不患病
+
 #加载R包
 library(tidyverse)
 library(data.table)
-library(survival)
-library(mice)
-library(ggplot2)
-library(ggrepel)
-library(reticulate)
 
 #疾病定义-----------------------------------------------------------------------
-target_disease <- "Stroke"                      #在这里更改疾病名称
+target_disease <- "Stroke"                                   #在这里更改疾病名称
 disease_ICD10 <- "I60|I61|I62|I63|I64|I65|I66|I67|I68|I69"   #在这里更改疾病的ICD10编码，用“或者”的符号“|”进行连接
-disease_OPSC4 <- ""                       #在这里更改疾病手术的OPSC编码，用“或者”的符号“|”进行连接
+disease_OPSC4 <- ""                                          #在这里更改疾病手术的OPSC编码，用“或者”的符号“|”进行连接
 
 #路径定义-----------------------------------------------------------------------
 proteomics_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Proteomics/"                                       #含有蛋白组学数据的路径
 diagnose_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Diagnosis_info/"                                     #含有疾病诊断信息的路径
-covariate_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Covariates/"                                        #含有协变量数据的路径
-disease_def_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Disease_outcomes/Stroke/"    #在这里更改疾病定义输出的路径
+disease_def_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Disease_outcomes/Stroke/"                         #在这里更改疾病定义输出的路径
 
 ##############################################################################
 ###                                                                        ###
@@ -286,6 +284,7 @@ deathdate <- deathdate[,c(1,34)]
 names(deathdate) <- c("eid", "date_death")
 deathdate <- distinct(deathdate)
 
+#计算时间跨度
 control <- merge(control, deathdate, by = "eid", all.x = T)
 control$record_end <- "2022-10-31"#这是住院、死亡记录数据最后更新的时间点
 control <- as_tibble(control)
