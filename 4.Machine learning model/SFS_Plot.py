@@ -1,4 +1,5 @@
-
+#对顺序前向选择的结果绘图
+#来源于Nature Aging那篇文章
 
 import numpy as np
 import pandas as pd
