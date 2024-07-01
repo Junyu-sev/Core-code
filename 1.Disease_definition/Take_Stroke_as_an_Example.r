@@ -1,6 +1,19 @@
-### 需要满足以下要求才会纳入：
-### 1.有蛋白组学数据
-### 2.基线前不患病
+### 疾病定义 纳入排除 获取生存分析数据
+###
+### I. 满足以下情况时，个体才会被纳入：
+### 1. 有蛋白组学数据
+### 2. 基线前不患这种病
+###
+### II. 这个代码使用了UKB中 **住院记录、自我报告、死亡记录、Primary Care、手术OPSC4** 的数据进行UKB疾病定义
+### 1. 住院记录：可以精准到小数点后一位的ICD10编码（例如I20.0），但是也有只含整数的编码（例如I20）
+### 2. 自我报告：自我报告有一套自己的编码，通过UKB提供的转码文件转为ICD10编码，只能转到整数位数的ICD10编码（例如I20）
+### 3. 死亡记录：可以精准到小数点后一位的ICD10编码（例如I20.0）
+### 4. Primary care：primary care使用的是Read v2 code和Read v3 code，通过UKB提供的转码文件转为ICD10编码，只能转到整数位数的ICD10编码（例如I20）
+### 5. OPSC4手术记录：OPSC4编码，可以精准到小数点后一位
+### 因此，如果提供的ICD10编码只有形如I20.1等 一位小数的ICD10编码时，自我报告和Primary care的部分要删去。
+### 另外，自我报告中癌症和非癌症疾病是分开的，这份代码只用于提取非癌症疾病，癌症疾病的需要修改自我报告部分。
+###
+### III.得到的生存分析数据中，对照人群从基线直到随访结束都没有患这种疾病（对应的target_y = 0），目标人群在基线后诊断出这种疾病（对应target_y = 1）
 
 #加载R包
 library(tidyverse)
@@ -8,17 +21,18 @@ library(data.table)
 
 #疾病定义-----------------------------------------------------------------------
 target_disease <- "Stroke"                                   #在这里更改疾病名称
-disease_ICD10 <- "I60|I61|I62|I63|I64|I65|I66|I67|I68|I69"   #在这里更改疾病的ICD10编码，用“或者”的符号“|”进行连接
-disease_OPSC4 <- ""                                          #在这里更改疾病手术的OPSC编码，用“或者”的符号“|”进行连接
+disease_ICD10 <- "I60|I61|I62|I63|I64|I65|I66|I67|I68|I69"   #在这里更改疾病的ICD10编码，用或者的符号“|”进行连接
+disease_OPSC4 <- ""                                          #在这里更改疾病手术的OPSC编码，用或者的符号“|”进行连接，没有OPSC4编码的话保持为“”
 
 #路径定义-----------------------------------------------------------------------
-proteomics_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Proteomics/"                                       #含有蛋白组学数据的路径
-diagnose_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Diagnosis_info/"                                     #含有疾病诊断信息的路径
-disease_def_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Disease_outcomes/Stroke/"                         #在这里更改疾病定义输出的路径
+proteomics_path <- "/share/home/zhangjunyu/Project/IHD_Proteomic_analysis/Data/Proteomics/"                                       #含有蛋白组学数据的路径
+diagnose_path <- "/share/home/zhangjunyu/Project/IHD_Proteomic_analysis/Data/Diagnosis_info/"                                     #含有疾病诊断信息的路径
+### 上述两个路径存在于HPC中，可以进去看看哪些文件是需要的
+disease_def_path <- "/share/home/zhangjunyu/Project/Proteomic_analysis/Data/Disease_outcomes/Stroke/"                             #在这里更改疾病定义输出的路径
 
 ##############################################################################
 ###                                                                        ###
-###                  疾病定义 纳入排除 获取生存分析数据                       ###
+###                  疾病定义 纳入排除 获取生存分析数据                     ###
 ###                                                                        ###
 ##############################################################################
 
@@ -31,7 +45,7 @@ proteomics_eid <- unlist(proteomics_eid)
 ##获取出生年份，当自我报告用年龄表示疾病时间时，能转为完整时间
 date_birth <- fread(paste(diagnose_path, "year of birth.csv", sep = ""))
 date_birth <- subset(date_birth, date_birth$eid %in% proteomics_eid)
-##获取入组时间
+##获取入组时间，用于计算“生存”时间
 attending_time <- fread(paste(covariate_path, "covariate.csv", sep = ""),select = c("eid", "attending_time"))
 attending_time<- subset(attending_time, eid %in% proteomics_eid)
 attending_time$attending_time <- ymd(attending_time$attending_time)
@@ -63,12 +77,12 @@ if(disease_OPSC4 != ""){
 ##将疾病编码替换为单纯的ICD10编码形式
 inpatient <- inpatient[grep(pattern = disease_ICD10, inpatient$Diagnoses...ICD10),]
 diagnose <- strsplit(unlist(inpatient[,2]),split = "\\|")
-diagnose <- lapply(diagnose, function(x) substr(x, start = 1, stop = 5))
-diagnose <- lapply(diagnose, function(x) gsub(pattern = " .","",x))
-diagnose <- sapply(diagnose, function(x) paste(x,collapse = "|"))
+diagnose <- lapply(diagnose, function(x) substr(x, start = 1, stop = 5)) #删去了ICD10编码之外的文本
+diagnose <- lapply(diagnose, function(x) gsub(pattern = " .","",x))      #由于有些ICD10编码只有三位，没有小数点，例如I20，所以这里进一步删去了多余的文本
+diagnose <- sapply(diagnose, function(x) paste(x,collapse = "|"))        
 inpatient$Diagnoses...ICD10 <- diagnose
 
-##提取想要的疾病患者
+##提取想要的疾病患者和诊断时间
 get_disease <- function(x){
   disease <- strsplit(x[2], split = "\\|")
   disease <- unlist(disease)
@@ -231,7 +245,7 @@ if(disease_OPSC4 != ""){
   diagnose_date <- subset(diagnose_date, !diagnose_date$eid %in% self_reported$eid)
 }
 
-
+#把各个数据来源的时间合并，用|连接
 diagnose_date <- apply(diagnose_date, 1, function(x){
   date <- x[-1]
   date <- paste(date, collapse = "|")
@@ -242,17 +256,17 @@ diagnose_date <- apply(diagnose_date, 1, function(x){
 diagnose_date <- t(diagnose_date)
 diagnose_date <- as_tibble(diagnose_date)
 names(diagnose_date) <- c("eid", "diagnose_date")
-
 diagnose_date$diagnose_date <- gsub("\\|NA", "", diagnose_date$diagnose_date)
 diagnose_date$diagnose_date <- gsub("NA\\|", "", diagnose_date$diagnose_date)
 
+#把每个时间分割成一列
 max_cols <- max(sapply(strsplit(diagnose_date$diagnose_date, "\\|"), length))
 diagnose_date <- separate(diagnose_date, diagnose_date, into = paste0("date_", 1:max_cols), sep = "\\|")
 date_cols <- names(diagnose_date)[2:ncol(diagnose_date)]
 diagnose_date <- mutate(diagnose_date,across(all_of(date_cols), as.Date))
 diagnose_date <- merge(diagnose_date, attending_time, by = "eid")
 
-#计算基线到诊断的时间跨度,提供疾病组数据
+#计算基线到诊断的时间跨度,提供疾病发生时间的数据
 diagnose_date1 <- diagnose_date[,c(-1, -ncol(diagnose_date))]
 diagnose_date1 <- apply(diagnose_date1, 2, function(x){
   x <- as.Date(x)
@@ -264,8 +278,12 @@ diagnose_date1 <- apply(diagnose_date1, 2, function(x){
 diagnose_date1 <- apply(diagnose_date1, 1, min, na.rm = T)#获取最早出现事件的时间
 diagnose_date[2] <- diagnose_date1
 diagnose_date <- diagnose_date[,1:2]
+
+# 基线前诊断患病的个体
 baseline_diagnose_date <- diagnose_date %>% filter(date_1 <= 0)
 names(baseline_diagnose_date) <- c("eid", "BL2Target_yrs")
+
+# 基线后诊断患病的个体
 diagnose_date <- diagnose_date %>% filter(date_1 > 0)
 diagnose_date <- diagnose_date %>% filter(!is.infinite(date_1))
 diagnose_date$target_y <- 1
@@ -276,9 +294,9 @@ control <- attending_time
 control <- subset(control, !control$eid %in% self_reported$eid)
 control <- subset(control, !control$eid %in% baseline_diagnose_date$eid)
 control <- subset(control, !control$eid %in% diagnose_date$eid)
-
 control <- as_tibble(control)
-##获取死亡时间
+                     
+##获取死亡时间，如果个体优先发生了死亡，生存时间缩短为基线至死亡的时间
 deathdate <- fread(paste(diagnose_path, "death disease (date included).csv", sep = ""))
 deathdate <- deathdate[,c(1,34)]
 names(deathdate) <- c("eid", "date_death")
@@ -286,14 +304,14 @@ deathdate <- distinct(deathdate)
 
 #计算时间跨度
 control <- merge(control, deathdate, by = "eid", all.x = T)
-control$record_end <- "2022-10-31"#这是住院、死亡记录数据最后更新的时间点
+control$record_end <- "2022-10-31"#这是住院、死亡记录数据最后更新的时间点，作为无事件发生时的endpoint
 control <- as_tibble(control)
 control$attending_time <- as.Date(control$attending_time)
 control$date_death <- as.Date(control$date_death)
 control$record_end <- as.Date(control$record_end)
 control$date_death <- as.numeric(control$date_death - control$attending_time)/365
 control$record_end <- as.numeric(control$record_end - control$attending_time)/365
-control <- control %>% mutate(BL2Target_yrs = ifelse(!is.na(date_death), date_death, record_end))#很奇怪的一件事是，有些个体的死亡记录
+control <- control %>% mutate(BL2Target_yrs = ifelse(!is.na(date_death), date_death, record_end))
 control$target_y <- 0
 control <- control %>% select(c("eid", "BL2Target_yrs", "target_y"))
 
