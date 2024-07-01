@@ -10,14 +10,15 @@ from lifelines.plotting import add_at_risk_counts
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-#data in
+#设置输入路径，需要有每个蛋白的Cutoff存储路径，蛋白浓度路径，疾病定义路径
 cutoffpath = '/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Result/KM_plot/Cut_off_determination/Non_MetS_cutoff_HR.csv'
 propath = '/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Data/Proteomics/231008_data_olink_instance_0.csv'
 outcomepath = '/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Data/Disease_outcomes/IHD/Non_MetS.csv'
 
-#data out
+#设置输出路径
 outpath = '/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Result/KM_plot/KMplot_A_Z/Non_MetS/'
 
+#读取cutoff文件，将HR_p_val变成科学计数法
 cutoff_df = pd.read_csv(cutoffpath)
 cutoff_df = cutoff_df.sort_values(by='Pro_code')
 
@@ -28,19 +29,20 @@ def scientific_notation_to_latex(value):
     base = f"{value / (10 ** exponent):.1f}"
     return f"${base} \\times 10^{{{exponent}}}$"
 
-
 cutoff_df['p_val_new_form'] = cutoff_df['HR_p_val'].apply(scientific_notation_to_latex)
 
-pro_f_lst = cutoff_df.Pro_code.tolist()
-cut_f_lst = cutoff_df.cutoff_result.tolist()
-riskdir_f_lst = cutoff_df.HR.tolist()
-pval_f_lst = cutoff_df.p_val_new_form.tolist()
-hrci_f_lst = cutoff_df.HR_ci.tolist()
+pro_f_lst = cutoff_df.Pro_code.tolist()        #蛋白列表
+cut_f_lst = cutoff_df.cutoff_result.tolist()   #cutoff列表
+riskdir_f_lst = cutoff_df.HR.tolist()          #HR列表
+pval_f_lst = cutoff_df.p_val_new_form.tolist() #p_val列表
+hrci_f_lst = cutoff_df.HR_ci.tolist()          #HR置信区间列表
 
+#读取蛋白浓度和疾病定义文件
 pro_df = pd.read_csv(propath, usecols=['eid'] + pro_f_lst)
 target_df = pd.read_csv(outcomepath, usecols = ['eid', 'target_y', 'BL2Target_yrs'])
 mydf = pd.merge(target_df, pro_df, how = 'inner', on = 'eid')
 
+#按字母顺序输出成pdf文件
 letter_to_elements = {}
 for item in pro_f_lst:
     first_letter = item[0]
