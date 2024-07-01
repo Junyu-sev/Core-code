@@ -1,3 +1,5 @@
+#基于最大化Youden Index获取每个蛋白的cutoff数值，和高低浓度组未来患疾病的HR和P-val
+
 #加载R包
 library(tidyverse)
 library(data.table)
