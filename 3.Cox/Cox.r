@@ -1,3 +1,6 @@
+#对每种UKB蛋白，分别做疾病的cox比例风险模型分析，获取每个蛋白的HR和校正p-val
+#cox协变量要根据具体疾病进行调整，下面采用的协变量应用于IHD（缺血性心脏病）
+
 #加载R包
 library(tidyverse)
 library(data.table)
@@ -8,16 +11,15 @@ library(ggrepel)
 
 
 #路径定义-----------------------------------------------------------------------
-proteomics_path <- "/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Data/Proteomics/"                                                           #含有蛋白组学数据的路径
-covariate_path <- "/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Data/Covariates/"                                                            #含有协变量数据的路径
-disease_def_path <- "/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Data/Disease_outcomes/IHD/Non_MetS.csv"    #在这里更改疾病定义的路径
-cox_path <- "/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Result/Cox/Non_MetS_cox"                                                                       #在这里更改cox分析的路径
-cutoff_path <- '/share/home/zhangjunyu/Project/IHD_MetS_Proteomic_analysis/Fdr-corrected-pval/Result/KM_plot/Cut_off_determination/Non_MetS_cutoff'                                          #在这里更改cutoff输出的路径
+proteomics_path <- "/share/home/zhangjunyu/Project/IHD_Proteomic_analysis/Data/Proteomics/"                       #含有蛋白组学数据的路径
+covariate_path <- "/share/home/zhangjunyu/Project/IHD_Proteomic_analysis/Data/Covariates/"                        #含有协变量数据的路径
+disease_def_path <- "/share/home/zhangjunyu/Project/IHD_Proteomic_analysis/Data/Disease_outcomes/IHD/IHD.csv"     #在这里更改疾病定义的路径
+cox_path <- "/share/home/zhangjunyu/Project/IHD_Proteomic_analysis/Result/Cox/IHD"                                #在这里更改输出cox结果的路径
 
 
 ##############################################################################
 ###                                                                        ###
-###                        cox分析找寻风险蛋白因素                           ###
+###                        cox分析找寻风险蛋白因素                          ###
 ###                                                                        ###
 ##############################################################################
 
@@ -47,11 +49,14 @@ for (pro_f in pro_f_lst){
   i = i + 1
   print(i)
   imp_cov <- imp_cov_data
+  # 在插补数据中加入每个个体当前分析蛋白的浓度
   imp_cov$target_pro <- rep(mydf[,get(pro_f)], imp.cov$m + 1)
+  # 删除蛋白浓度缺失的个体
   imp_cov <- imp_cov %>% filter(!is.na(target_pro))
   imp_cov$.id <- rep(1:(nrow(imp_cov)/6), imp.cov$m + 1)
   imp.cov.new <- as.mids(imp_cov)
   tryCatch({
+    #协变量要根据具体需求调整
     fit <- with(imp.cov.new, coxph(Surv(BL2Target_yrs, target_y) ~ target_pro + age + sex + Ethnic + Qualification + Townsend + income + assessment_centre + Smoking + Alcohol + IPAQ + Overall_health_rating + BMI + Weight + Height + Waist_circumference + SBP + DBP + Cholesterol + HDL_cholesterol + Triglycerides + HbA1c + hypertension + Diabetes + Cholesterol_lowering_medication + Blood_pressure_medication + Illnesses_of_family_stroke_and_heart_disease))
     Coef <- summary(pool(fit))$estimate[1]
     HR <- exp(Coef)
@@ -67,14 +72,15 @@ for (pro_f in pro_f_lst){
   names(myout_df) <- c('Coef', 'sd.Coef', 'HR', 'HR_p_val')
   myout_df$Pro_code <- pro_out_lst
   myout_df <- myout_df %>% mutate(HR_p_val = ifelse(is.na(HR_p_val),1,HR_p_val)) 
+  #进行p值校正
   myout_df$p_val_fdr <- p.adjust(myout_df$HR_p_val, method ="BH")
   myout_df$p_val_bfi <- p.adjust(myout_df$HR_p_val, method ="bonferroni")
   write.csv(myout_df,paste(cox_path,".csv",sep=""), row.names = F)
 
-#绘制火山图
-myout_df$selectedpro <- ifelse(myout_df$p_val_fdr<0.05, myout_df$Pro_code,NA)
-myout_df$selected <- ifelse(myout_df$p_val_fdr<0.05, "Risk protein","Non-risk protein")
-p1 <- ggplot(myout_df,aes(HR,-log10(p_val_fdr),
+#对于所有蛋白绘制火山图
+myout_df$selectedpro <- ifelse(myout_df$p_val_bfi<0.05, myout_df$Pro_code,NA)
+myout_df$selected <- ifelse(myout_df$p_val_bfi<0.05, "Risk protein","Non-risk protein")
+p1 <- ggplot(myout_df,aes(HR,-log10(p_val_bfi),
 	color = factor(selected),
 	size = factor(selected)))+  
       geom_point()+
@@ -93,11 +99,3 @@ p1 <- ggplot(myout_df,aes(HR,-log10(p_val_fdr),
       geom_hline(yintercept = -log10(0.05),linetype=2,cex=1)+
       geom_vline(xintercept = 1,linetype=2,cex=1) 
 ggsave(paste(cox_path,".pdf",sep=""),p1)
-
-#删除环境中不需要的变量
-all_variables <- ls()
-variables_to_remove <- setdiff(all_variables, c("proteomics_path","covariate_path", "disease_def_path","target_disease","cox_path","cutoff_path","KM_path"))
-rm(list = variables_to_remove)
-rm(variables_to_remove)
-
-print("已完成：cox分析找寻风险蛋白因素（包括火山图）")
