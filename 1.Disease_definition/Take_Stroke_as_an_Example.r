@@ -296,13 +296,13 @@ control <- subset(control, !control$eid %in% baseline_diagnose_date$eid)
 control <- subset(control, !control$eid %in% diagnose_date$eid)
 control <- as_tibble(control)
                      
-##获取死亡时间，如果个体优先发生了死亡，生存时间缩短为基线至死亡的时间
+#获取死亡时间，如果个体优先发生了死亡，生存时间缩短为基线至死亡的时间
 deathdate <- fread(paste(diagnose_path, "death disease (date included).csv", sep = ""))
 deathdate <- deathdate[,c(1,34)]
 names(deathdate) <- c("eid", "date_death")
 deathdate <- distinct(deathdate)
 
-#计算时间跨度
+#计算对照人群的时间跨度
 control <- merge(control, deathdate, by = "eid", all.x = T)
 control$record_end <- "2022-10-31"#这是住院、死亡记录数据最后更新的时间点，作为无事件发生时的endpoint
 control <- as_tibble(control)
@@ -315,6 +315,7 @@ control <- control %>% mutate(BL2Target_yrs = ifelse(!is.na(date_death), date_de
 control$target_y <- 0
 control <- control %>% select(c("eid", "BL2Target_yrs", "target_y"))
 
+#数据保存
 Disease_outcomes <- rbind(diagnose_date, control)
 Disease_outcomes <- Disease_outcomes[order(Disease_outcomes$eid),]
 write.csv(Disease_outcomes, paste(disease_def_path , target_disease, "_outcomes.csv", sep = ""), row.names = F)
