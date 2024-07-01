@@ -1,4 +1,4 @@
-# 这个代码进行模型评估
+# 这个代码进行模型评估，比较不同模型建模的效果
 # https://blog.csdn.net/LegenDavid/article/details/79063044
 # https://zhuanlan.zhihu.com/p/552278753
 # 似乎AUC才是更稳健，更加好的评估手段
@@ -58,8 +58,7 @@ Y = Y.reset_index(drop=True)
 
 
 #创建一个函数，根据不同的模型计算accuracy，precision，recall，F1，AUC（ROC和PR）
-#内外部交叉验证，按照UKB英国地区进行划分，每个地区依次作为验证数据集，其他作为训练集，然后计算AUC（C-statistic）和overall C-statistic
-#展示每个地区的人数，一共10个地区
+#内部按地区划分交叉验证，按照UKB英国地区进行划分，每个地区依次作为验证数据集，其他作为训练集，然后计算AUC，accuracy，f1等等
 def evaluate_model(model):
     #定义需要计算的指标
     accuracies, precisions, recalls, f1s, roc_aucs, pr_aucs = [], [], [], [], [], []
