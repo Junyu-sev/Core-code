@@ -40,7 +40,7 @@ pro_df = pd.read_csv(dpath + 'Raw_data/231008_data_olink_instance_0.csv',usecols
 target_df = pd.read_csv(dpath + 'Disease_outcomes/IHD_control_definition/4without_nonIHD/IHD_outcomes.csv', usecols = ['eid', 'target_y', 'BL2Target_yrs'])
 mydf = pd.merge(target_df, pro_df, how = 'inner', left_on = ['eid'], right_on = ['ParticipantID1'])
 #缺失值选择用每列平均值插补，因为有些模型不允许缺失值
-mydf = mydf.fillna(df.mean())
+mydf = mydf.fillna(mydf.mean())
 
 #获取用于预测的数据和要预测的指标数据
 X = mydf.drop(['eid','BL2Target_yrs','target_y','ParticipantID1'], axis=1)
