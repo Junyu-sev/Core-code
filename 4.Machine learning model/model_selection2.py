@@ -39,8 +39,8 @@ pro_f_lst = [
 pro_df = pd.read_csv(dpath + 'Raw_data/231008_data_olink_instance_0.csv',usecols = ['ParticipantID1'] + pro_f_lst)
 target_df = pd.read_csv(dpath + 'Disease_outcomes/IHD_control_definition/4without_nonIHD/IHD_outcomes.csv', usecols = ['eid', 'target_y', 'BL2Target_yrs'])
 mydf = pd.merge(target_df, pro_df, how = 'inner', left_on = ['eid'], right_on = ['ParticipantID1'])
-#缺失值选择全部去掉，这其实不太好的，之后再找找文献看看有没有处理的办法（明天yebu一定）
-mydf = mydf.dropna()
+#缺失值选择用每列平均值插补，因为有些模型不允许缺失值
+mydf = mydf.fillna(df.mean())
 
 #获取用于预测的数据和要预测的指标数据
 X = mydf.drop(['eid','BL2Target_yrs','target_y','ParticipantID1'], axis=1)
