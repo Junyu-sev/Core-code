@@ -36,6 +36,6 @@ Core codes when studying in Guangdong Provincial People's Hospital, Guangzhou.
 - Numbers at risk & numbers at event
 
 ## 6.MR analysis
-- **Pythonb/R**
+- **Python/R**
 - Gwaslab to wash data into vcf framat in GR37/hg19
 - Series of IEU packages to conduct Two-sample MR analysis locally
