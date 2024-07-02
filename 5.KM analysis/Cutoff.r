@@ -11,7 +11,7 @@ library(mice)
 proteomics_path <- "/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Data/Proteomics/"                                                           #含有蛋白组学数据的路径
 covariate_path <- "/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Data/covariate/"                                                            #含有协变量数据的路径
 disease_def_path <- "/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Data/DKD_outcome/DKD_outcome_complication_baseline_removed.csv"           #在这里更改疾病定义的路径
-cox_path <- "/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Result/Cox/240701_Cox/DKD"
+cox_path <- "/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Result/Cox/240701_Cox/DKD"                                                        #在这里更改cox结果的存放路径
 cutoff_path <- '/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Result/KM/240701_cutoff/DKD_cutoff'                                          #在这里更改cutoff输出的路径
 
 
@@ -19,7 +19,7 @@ cutoff_path <- '/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Resul
 ###                                                                        ###
 ###                                KM生存分析                               ###
 ###                                                                        ###
-##############################################################################
+##############################################################################                  
 
 print("开始：KM生存分析")
 
