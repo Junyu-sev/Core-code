@@ -1,4 +1,4 @@
-#用35核来计算所有疾病的MR，5E-8
+#用30核来计算所有疾病的MR，5E-8
 library(parallel)
 library(genetics.binaRies)
 library(ieugwasr)
