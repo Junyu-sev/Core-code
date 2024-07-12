@@ -39,3 +39,8 @@ Core codes when studying in Guangdong Provincial People's Hospital, Guangzhou.
 - **Python/R**
 - Gwaslab to wash data into vcf framat in GR37/hg19
 - Series of IEU packages to conduct Two-sample MR analysis locally
+
+## 7.Colocalization analysis
+- **R**
+- gwasglue to match vcf files in given chrompos
+- conc for colocalization analysis
