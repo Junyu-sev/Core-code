@@ -42,5 +42,5 @@ Core codes when studying in Guangdong Provincial People's Hospital, Guangzhou.
 
 ## 7.Colocalization analysis
 - **R**
-- gwasglue to match vcf files in given chrompos
-- conc for colocalization analysis
+- Gwasglue to match vcf files in given chrompos
+- Conc for colocalization analysis
