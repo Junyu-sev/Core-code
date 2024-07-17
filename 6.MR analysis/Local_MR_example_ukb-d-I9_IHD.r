@@ -19,6 +19,7 @@ Files = gsub(".vcf", "", Files)
 for(id in Files){
     tryCatch({expd <- gwasvcf::query_gwas(paste("/share/home/linmiao/bio/rawdata/Finngen/Olink_vcf/", id, ".vcf", sep = ""), pval=5e-8)
     expd <- gwasglue::gwasvcf_to_TwoSampleMR(expd, type="exposure")
+    expd <- expd %>% filter(eaf.exposure > 0.01)
     retain_snps <- expd %>% dplyr::select(rsid=SNP, pval=pval.exposure) %>%
           ieugwasr::ld_clump(., plink_bin=genetics.binaRies::get_plink_binary(), bfile="/share/home/zhangjunyu/Rawdata/bfile/data_maf0.01_rs_ref") %>%
           {.$rsid}
