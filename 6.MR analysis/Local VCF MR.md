@@ -24,6 +24,7 @@ library(TwoSampleMR)
 gwasvcf::set_bcftools()
 expd <- gwasvcf::query_gwas("Path/To/Exposure/data.vcf.gz OR Path/To/Exposure/data.vcf", pval=5e-8)
 expd <- gwasglue::gwasvcf_to_TwoSampleMR(expd, type="exposure")
+expd <- expd %>% filter(eaf.exposure > 0.01) #MAF>0.01
 retain_snps <- expd %>% dplyr::select(rsid=SNP, pval=pval.exposure) %>%
     ieugwasr::ld_clump(., plink_bin=genetics.binaRies::get_plink_binary(), 
         bfile="/Path/To/data_maf0.01_rs_ref") %>% {.$rsid} # Don't add file extension to data_maf0.01_rs_ref
