@@ -31,7 +31,7 @@ tab2 <- GWAS2 %>% gwasvcf::vcf_to_granges() %>% dplyr::as_tibble()
 index <- as.character(tab1$REF) == as.character(tab2$REF) &
 			as.character(tab1$ALT) == as.character(tab2$ALT) &
 			as.character(tab1$seqnames) == as.character(tab2$seqnames) &
-			tab1$start == tab2$start
+			tab1$start == tab2$start & tab1$ID!="<NA>" & tab2$ID!="<NA>"
 stopifnot(sum(index) > 0)
 tab1$AF[is.na(tab1$AF)] <- 0.5
 tab2$AF[is.na(tab2$AF)] <- 0.5
