@@ -1,5 +1,8 @@
 # Core-code
 Core codes when studying in Guangdong Provincial People's Hospital, Guangzhou.
+Personal use & ready to share.
+Most codes are adjusted from tutorials of related packages/softwares/articles.
+Reference of each package/software/method is omitted.
 
 # Contents
 
