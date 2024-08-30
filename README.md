@@ -44,3 +44,8 @@ Core codes when studying in Guangdong Provincial People's Hospital, Guangzhou.
 - **R**
 - Gwasglue to match vcf files in given chrompos
 - Conc for colocalization analysis
+
+## 8.GWAS & PRS
+- **sh/R**
+- Plink2 to perform GWAS analysis
+- PRSice-2, LDpred2, and lassosum for PRS calculation
