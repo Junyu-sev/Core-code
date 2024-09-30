@@ -1,3 +1,4 @@
+#批量的共定位分析，这里用多种蛋白对一种疾病进行共定位，蛋白选择蛋白对应基因上下游90kb的范围（可以调整）
 #预处理
 #需要把vcf文件变成vcf.gz文件，并生成index文件
 #bgzip finngen_R10_C3_BLADDER_EXALLC.vcf
@@ -39,6 +40,7 @@ outcome_info <- outcomne_info %>% filter(phenocode == gsub("finngen_R9_", "", Ou
 Files = list.files("/share/home/linmiao/bio/rawdata/UKB_PP_SNP/DataWashvcf/Data",pattern = "^ADM_|^AGER_|^ANGPTL3_|^CCER2_|^CD160_|^CD300A_|^CFC1_|^CFD_|^CGA_|^CHRDL1_|^CX3CL1_|^DCBLD2_|^FAM3C_|^FOLR1_|^FSTL1_|^GABARAP_|^GCNT1_|^GPR37_|^HIP1R_|^HLA-E_|^IFNGR1_|^IGFBP1_|^IGFBP4_|^MYOC_|^NBL1_|^NCR1_|^NTproBNP_|^PALM2_|^POLR2F_|^PTGDS_|^RNASET2_|^SCARF1_|^SCGB3A2_|^SHISA5_|^TNFRSF1B_|^TNFRSF4_|^VWC2L_")
 Files = gsub(".vcf", "", Files)
 
+#官网提供的文件，直接搜gencode.v37lift37.annotation.gtf说不定能搜到哦
 protein_list <- fread("/share/home/zhangjunyu/Project/Diabetes_Proteomic_analysis/Data/conc_vcf/gencode.v37lift37.annotation.gtf")
 protein_list <- protein_list %>% filter(V3 == "gene")
 
@@ -47,6 +49,7 @@ coloc_result <- tibble()
 for (id in Files){
   tryCatch({
   protein_id <- gsub("_.*", "", id)
+  #获取蛋白染色体上的位置，进而得到共定位的区间
   #protein_GWAS <- fread(paste("/share/home/linmiao/bio/rawdata/UKB_PP_SNP/DataWashvcf/Data/",id, ".vcf", sep=""))
   #protein_GWAS$Study_1 <- gsub(".*:.*:.*:(.*):.*:.*", "\\1", protein_GWAS$Study_1)
   #protein_GWAS$Study_1 <- as.numeric(protein_GWAS$Study_1)
