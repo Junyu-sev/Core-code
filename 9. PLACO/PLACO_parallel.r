@@ -64,11 +64,8 @@ placo_p_value <- out_placo[seq(2, length(out_placo), 2)]
 dat <- data.frame(dat, placo_p = placo_p_value)
 fwrite(dat, paste("/share/home/zhangjunyu/Project/240925_HF/Result/PLACO/placo_finngen_R10_", id1, "AND", id2, ".csv", sep = ""), row.names = F)
 
+#获取PLACO显著的SNP清单
 dat_p_sig <- dat %>% filter(placo_p < 5E-8)
 if(nrow(dat_p_sig) != 0){
     fwrite(dat_p_sig, paste("/share/home/zhangjunyu/Project/240925_HF/Result/PLACO/placo_sig_finngen_R10_", id1, "&", id2, ".csv", sep = ""), row.names = F)
 }
-
-#save.image(file = "/share/home/zhangjunyu/Project/240925_HF/Result/PLACO/placo_finngen_R10_N14_RENFAIL&ukb-d-HEARTFAIL.RData")
-
-
