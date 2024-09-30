@@ -57,7 +57,8 @@ cs <- cumsum(vres$results$SNP.PP.H4[o])
 w <- which(cs > 0.95)[1]
 vres$results[o,][1:w,]$snp
 
-#可视化1：两个GWAS的region合并作图，会把两个trait的放在一张图上面
+#可视化1.1：两个GWAS的region合并作图，会把两个trait的放在一张图上面
+#这种可视化方式需要自己提供clumping矩阵，所以借用ieugwasr::ld_matrix计算一下
 #参考：https://github.com/MRCIEU/gwasglue/blob/c2d5660eed389e1a9b3e04406b88731d642243f1/R/gassocplot.r
 coloc_to_gassocplot_geni.plots <- function(coloclist)
 {
@@ -90,7 +91,8 @@ fig_region_stack(
 )
 dev.off()
 
-#可视化2：单一region作图,可能大部分时候并不能用到，如果想得到两个子图，自行拼接，可以考虑这个
+#可视化1.2：单一region作图,可能大部分时候并不能用到，如果想得到两个子图，自行拼接，可以考虑这个
+#这种可视化方式需要自己提供clumping矩阵，所以借用ieugwasr::ld_matrix计算一下
 #参考：https://github.com/MRCIEU/gwasglue/blob/c2d5660eed389e1a9b3e04406b88731d642243f1/R/gassocplot.r
 coloc_to_gassocplot_geni.plots <- function(coloclist)
 {
@@ -133,4 +135,10 @@ fig_region(
 )
 dev.off()
 
-
+#可视化2：locuscomparer包，不需要提供clumping的矩阵
+library(locuscomparer)
+gwas1 <- tab1[index, c("ID", "LP")] %>% mutate(LP = 10^(-(LP))) %>% rename(rsid=ID, pval=LP) 
+gwas2 <- tab2[index, c("ID", "LP")] %>% mutate(LP = 10^(-(LP))) %>% rename(rsid=ID, pval=LP) 
+pdf("conc_show3.pdf")
+locuscompare(in_fn1 = gwas1, in_fn2 = gwas2, title1 = 'GWAS', title2 = 'pQTL', genome = 'hg19') #基因选hg19和hg38感觉都可以
+dev.off()
