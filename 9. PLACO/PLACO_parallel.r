@@ -43,6 +43,10 @@ colnames(P.matrix) <- c("P1", "P2")
 
 #测试相关性，应该问题不大，我们的样本没有重叠
 #R <- cor.pearson(Z.matrix, P.matrix, p.threshold=1e-4)
+#	"%^%" <- function(x, pow)
+		with(eigen(x), vectors %*% (values^pow * t(vectors)))
+#Z.matrix.decor <- Z.matrix %*% (R %^% (-0.5))
+#colnames(Z.matrix.decor) <- paste("Z",1:k,sep="")
 
 VarZ <- var.placo(Z.matrix, P.matrix, p.threshold=1e-4)
 
