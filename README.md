@@ -26,7 +26,7 @@
 
 ## 4.Machine learning model for prediction
 - **Python**
-- LGBM, RF, SVM, XGBoost, DT, LR...
+- kmeans, LGBM, RF, SVM, XGBoost, DT, LR...
 - SMOTE/Downsampling to deal with imbalance problems
 - Bayesian-optimization
 - Accuracy, precision, recall...
@@ -52,3 +52,8 @@
 - **sh/R**
 - Plink2 to perform GWAS analysis
 - PRSice-2, LDpred2, and lassosum for PRS calculation
+
+## 9.PLACO
+- **R**
+- pleiotropic effect of a genetic variant on two traits
+- [https://github.com/RayDebashree/PLACO]
