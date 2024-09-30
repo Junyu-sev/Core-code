@@ -56,4 +56,4 @@
 ## 9.PLACO
 - **R**
 - pleiotropic effect of a genetic variant on two traits
-- [https://github.com/RayDebashree/PLACO]
+- reference: https://github.com/RayDebashree/PLACO
