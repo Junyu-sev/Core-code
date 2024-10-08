@@ -100,3 +100,35 @@ mysumstats.to_format("/Where/To/Save/Cleaned/Data/filename", fmt="vcf", build="1
 ## Finally
 
 Some mistakes may exist above. Feel it free to feed back!
+
+## 补充更新
+
+gwaslab读取.vcf文件会报错，需要修改io_preformat_input.py文件中get_readargs_header函数的定义，改成下面这个就可以啦~ 读取.vcf.gz文件不受任何影响
+
+```python
+def get_readargs_header(inpath,readargs):
+    if "vcf.gz" in inpath:
+        with gzip.open(inpath,'r') as file:      
+            skip=0
+            for line in file:        
+                if line.decode('utf-8').startswith('##'):
+                    skip+=1
+                else:
+                    readargs["skiprows"]=skip
+                    readargs["sep"]="\t"
+                    break
+    elif "vcf" in inpath:
+        with open(inpath, 'r') as file:
+            skip = 0
+            for line in file:
+                if line.startswith('##'):
+                    skip += 1
+                else:
+                    readargs["skiprows"] = skip
+                    readargs["sep"] = "\t"
+                    break
+    readargs_header = readargs.copy()
+    readargs_header["nrows"]=1
+    readargs_header["dtype"]="string"
+    return readargs_header
+```
