@@ -103,7 +103,7 @@ Some mistakes may exist above. Feel it free to feed back!
 
 ## 补充更新
 
-gwaslab读取.vcf文件会报错，需要修改io_preformat_input.py文件中get_readargs_header函数的定义，改成下面这个就可以啦~ 读取.vcf.gz文件不受任何影响
+gwaslab读取.vcf文件会报错，需要修改/share/home/zhangjunyu/anaconda3/envs/gwaslab/lib/python3.9/site-packages/gwaslab/io_preformat_input.py文件中get_readargs_header函数的定义，改成下面这个就可以啦~ 读取.vcf.gz文件不受任何影响
 
 ```python
 def get_readargs_header(inpath,readargs):
