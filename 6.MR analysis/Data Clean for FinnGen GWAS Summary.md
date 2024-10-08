@@ -103,7 +103,7 @@ Some mistakes may exist above. Feel it free to feed back!
 
 ## 补充更新
 
-gwaslab读取.vcf文件会报错，需要修改/share/home/zhangjunyu/anaconda3/envs/gwaslab/lib/python3.9/site-packages/gwaslab/io_preformat_input.py文件中get_readargs_header函数的定义，改成下面这个就可以啦~ 读取.vcf.gz文件不受任何影响
+gwaslab读取.vcf文件会报错，需要修改/share/home/zhangjunyu/anaconda3/envs/gwaslab/lib/python3.9/site-packages/gwaslab/io_preformat_input.py文件中get_readargs_header和get_skip_rows函数的定义，改成下面这个就可以啦~ 读取.vcf.gz文件不受任何影响
 
 ```python
 def get_readargs_header(inpath,readargs):
@@ -131,4 +131,26 @@ def get_readargs_header(inpath,readargs):
     readargs_header["nrows"]=1
     readargs_header["dtype"]="string"
     return readargs_header
+```
+
+```python
+def get_skip_rows(inpath):
+    if "vcf.gz" in inpath:
+        with gzip.open(inpath,'r') as file:      
+            skip=0
+            for line in file:        
+                if line.decode('utf-8').startswith('##'):
+                    skip+=1
+                else:
+                    return skip
+    elif "vcf" in inpath:
+        with open(inpath, 'r') as file:
+            skip = 0
+            for line in file:
+                if line.startswith('##'):
+                    skip += 1
+                else:
+                    return skip
+    else:
+        return 0
 ```
