@@ -10,7 +10,7 @@
 
 2. [Finemap官方教程](http://www.christianbenner.com/)
 
-3.[参考文献1](https://pmc.ncbi.nlm.nih.gov/articles/PMC10618167/#Sec11)
+3. [参考文献1](https://pmc.ncbi.nlm.nih.gov/articles/PMC10618167/#Sec11)
 
 使用 FINEMAP v1.468 对每个 GWAS 区域进行精细映射。对于每个精细映射的区域，使用来自基因型剂量的 LDstore269 计算样品内连锁不平衡 （LD） 矩阵。基因座中因果变异的最大数量设置为 10。每个精细映射的 GWAS 区域的独立关联信号的数量由 FINEMAP 给出最高后验概率的 CS 中信息可信集 （CS） 的数量决定。如果 CS 变体中的最小 r2 为≥0.1，那么这个CS被认为是informative. 我们从每个 CS 中选择顶部变体来表示关联信号，除非 CS 包含高 LD （r2 > 0.95） 的功能变体与顶部变体，在这种情况下，与顶部变体具有最大 r2 的功能变体被选为代表性变体66.如果未获得信息丰富的 CS，则选择 GWAS 先导变体作为代表性变体。MHC 区域 （chr 6： 25–34 Mb） 被排除在精细定位之外，其中 GWAS 先导变体被定义为代表性变体。
 
