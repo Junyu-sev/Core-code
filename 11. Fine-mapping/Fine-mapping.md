@@ -5,6 +5,7 @@
 1. [介绍Fine-mapping综述（Human Molecular Genetics的综述Strategies for fine-mapping complex traits）的推文](https://mp.weixin.qq.com/s/Vj_i7MSRsdN0JGTNTllPWw)
 
 里面有两张非常形象的总结图：
+
 ![alt text](image.png)
 ![alt text](image-1.png)
 
