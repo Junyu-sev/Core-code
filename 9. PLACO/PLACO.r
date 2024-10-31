@@ -13,8 +13,6 @@ library(data.table)
 library(TwoSampleMR)
 library(VariantAnnotation)
 
-library(parallel)
-
 gwasvcf::set_bcftools("/share/home/zhangjunyu/Software/bcftools/bin/bcftools")
 gwasvcf::set_plink()
 
@@ -28,6 +26,7 @@ outd <- gwasvcf::query_gwas(outcome_route, rsid = expd$SNP, proxies="no", thread
 outd <- gwasglue::gwasvcf_to_TwoSampleMR(outd, "outcome")
 dat <- TwoSampleMR::harmonise_data(expd, outd)
 
+#计算Z统计量，制作Z.matrix和P.matrix
 dat <- dat[,c("SNP", "beta.exposure", "se.exposure", "pval.exposure", "beta.outcome", "se.outcome", "pval.outcome")]
 dat <- dat %>% mutate(Z1 = beta.exposure/se.exposure)
 dat <- dat %>% mutate(Z2 = beta.outcome/se.outcome)
@@ -38,6 +37,7 @@ Z.matrix = dat[,c("Z1", "Z2")] %>% as.matrix()
 P.matrix = dat[,c("pval.exposure", "pval.outcome")] %>% as.matrix()
 colnames(P.matrix) <- c("P1", "P2")
 
+#测试相关性，应该问题不大，我们的样本没有重叠，所以忽略了这步骤！
 #R <- cor.pearson(Z.matrix, P.matrix, p.threshold=1e-4)
 
 VarZ <- var.placo(Z.matrix, P.matrix, p.threshold=1e-4)
@@ -52,14 +52,6 @@ dat_p_sig <- dat %>% filter(placo_p < 5E-8)
 if(nrow(dat_p_sig) != 0){
     fwrite(dat_p_sig, "/share/home/zhangjunyu/Project/240925_HF/Result/PLACO/placo_sig_finngen_R10_N14_RENFAIL&ukb-d-HEARTFAIL.csv", row.names = F)
 }
-
-
-#out1 <- mclapply(1:p, function(i) placo(Z=Z.matrix[i,], VarZ=VarZ), mc.cores=35)
-#Error in mcfork() : unable to fork, possible reason: Cannot allocate memory
-#Warning message:
-#In mclapply(1:p, function(i) placo(Z = Z.matrix[i, ], VarZ = VarZ),  :
-#  scheduled cores 4, 5, 7, 12, 32 did not deliver results, all values of the jobs will be affected
-#总之，这样的并行计算不稳定，和节点有关嘛？我在fat01节点跑的，emm...
 
 
 
